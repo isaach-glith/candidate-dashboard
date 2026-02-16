@@ -3,115 +3,125 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Candidate Readiness Dashboard</title>
-
+<title>Candidate Intelligence Dashboard</title>
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  margin: 0;
-  padding: 20px;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.header {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-.score {
-  font-size: 40px;
-  font-weight: bold;
-  color: #2b7cff;
-}
-
-.section {
-  margin-top: 20px;
-}
-
-.card {
-  background: #f9fafb;
-  padding: 15px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.bad {
-  color: #e63946;
-  font-weight: bold;
-}
-
-.good {
-  color: #2a9d8f;
-  font-weight: bold;
-}
-
-.button {
-  margin-top: 20px;
-  padding: 12px 18px;
-  background: #2b7cff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
+  body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
+  .container { max-width: 920px; margin:auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,.10); }
+  .header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; }
+  .header h1 { margin:0; font-size:22px; }
+  .sub { color:#6b7280; font-size:12px; margin-top:4px; }
+  .pill { font-size:12px; background:#eef2ff; color:#3730a3; padding:6px 10px; border-radius:999px; }
+  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
+  .card { background:#f9fafb; padding:14px; border-radius:8px; border:1px solid #eef2f7; }
+  .label { color:#6b7280; font-size:12px; margin-bottom:6px; }
+  .big { font-size:38px; font-weight:800; color:#2563eb; line-height:1; }
+  .good { color:#059669; font-weight:700; }
+  .bad { color:#dc2626; font-weight:700; }
+  ul { margin:8px 0 0 18px; padding:0; }
+  .btnRow { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+  button { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+  .primary { background:#2563eb; color:white; }
+  .secondary { background:#111827; color:white; }
+  .toast { margin-top:12px; padding:10px 12px; background:#ecfeff; border:1px solid #a5f3fc; border-radius:8px; color:#155e75; display:none; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 </style>
 </head>
-
 <body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Candidate Intelligence Dashboard</h1>
+        <div class="sub">
+          <span id="candidateName">Candidate</span> · <span id="candidateEmail">—</span><br/>
+          Contact ID: <span class="mono" id="contactId">—</span>
+        </div>
+      </div>
+      <div class="pill">AI-Powered Signals (Demo)</div>
+    </div>
 
-<div class="container">
+    <div class="grid">
+      <div class="card">
+        <div class="label">Overall Readiness Score</div>
+        <div class="big"><span id="score">87</span>%</div>
+        <div style="margin-top:10px;">
+          <span class="label">Hiring Recommendation</span><br/>
+          <span class="good" id="recommendation">Proceed to Offer</span>
+        </div>
+      </div>
 
-<div class="header">Candidate Intelligence Dashboard</div>
+      <div class="card">
+        <div class="label">AI Summary</div>
+        <div id="aiSummary">
+          Strong technical competency and communication. Low operational risk. Primary concern is competing offer timing.
+        </div>
+        <div style="margin-top:10px;" class="label">Confidence</div>
+        <div><strong>High</strong> (simulated)</div>
+      </div>
 
-<div>
-Overall Readiness Score:
-<div class="score">87%</div>
-</div>
+      <div class="card">
+        <div class="label">Risk Flags</div>
+        <ul id="riskFlags">
+          <li><span class="bad">Competing offer from another company</span></li>
+          <li>Salary expectations slightly above range</li>
+        </ul>
+      </div>
 
-<div class="section">
-<div class="card">
-<strong>Hiring Recommendation:</strong>
-<span class="good">Proceed to Offer</span>
-</div>
+      <div class="card">
+        <div class="label">Recommended Next Action</div>
+        <div id="nextAction">
+          Schedule final executive alignment and prepare compensation package.
+        </div>
 
-<div class="card">
-<strong>Risk Flags:</strong>
-<ul>
-<li class="bad">Competing offer from another company</li>
-<li>Salary expectations slightly above range</li>
-</ul>
-</div>
+        <div class="btnRow">
+          <button class="primary" id="triggerBtn">Trigger Offer Workflow</button>
+          <button class="secondary" id="logBtn">Log Decision Note</button>
+        </div>
 
-<div class="card">
-<strong>Interview Summary:</strong>
-<ul>
-<li>Strong technical competency</li>
-<li>Excellent communication</li>
-<li>Positive cultural fit</li>
-</ul>
-</div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+  </div>
 
-<div class="card">
-<strong>Next Suggested Action:</strong>
-<p>Schedule final executive alignment and prepare compensation package.</p>
-</div>
+<script>
+  const qs = new URLSearchParams(window.location.search);
 
-<button class="button">Trigger Offer Workflow</button>
+  const contactId = qs.get("contactId") || "";
+  const name = qs.get("name") || "Candidate";
+  const email = qs.get("email") || "—";
+  const score = qs.get("score") || "87";
+  const recommendation = qs.get("recommendation") || "Proceed to Offer";
 
-</div>
+  const risk1 = qs.get("risk1") || "Competing offer from another company";
+  const risk2 = qs.get("risk2") || "Salary expectations slightly above range";
 
-</div>
+  document.getElementById("contactId").textContent = contactId || "—";
+  document.getElementById("candidateName").textContent = name;
+  document.getElementById("candidateEmail").textContent = email;
+  document.getElementById("score").textContent = score;
+  document.getElementById("recommendation").textContent = recommendation;
 
+  const risks = document.getElementById("riskFlags");
+  risks.innerHTML = `
+    <li><span class="bad">${risk1}</span></li>
+    <li>${risk2}</li>
+  `;
+
+  const toast = document.getElementById("toast");
+  const showToast = (msg) => {
+    toast.textContent = msg;
+    toast.style.display = "block";
+    setTimeout(() => (toast.style.display = "none"), 2500);
+  };
+
+  document.getElementById("triggerBtn").addEventListener("click", () => {
+    // Demo behavior (no real HubSpot write-back from a static GitHub page)
+    showToast("Offer workflow triggered (demo). Next: in production, this would call a HubSpot workflow/API.");
+  });
+
+  document.getElementById("logBtn").addEventListener("click", () => {
+    showToast("Decision note logged (demo). Next: in production, write a note/engagement to the CRM record.");
+  });
+</script>
 </body>
 </html>
+
