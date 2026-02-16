@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Candidate Intelligence Dashboard</title>
+<title>Prospect Intelligence Dashboard</title>
 <style>
   body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
   .container { max-width: 920px; margin:auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,.10); }
@@ -30,9 +30,9 @@
   <div class="container">
     <div class="header">
       <div>
-        <h1>Candidate Intelligence Dashboard</h1>
+        <h1>Prospect Intelligence Dashboard</h1>
         <div class="sub">
-          <span id="candidateName">Candidate</span> · <span id="candidateEmail">—</span><br/>
+          <span id="ProspectName">Prospect</span> · <span id="ProspectEmail">—</span><br/>
           Contact ID: <span class="mono" id="contactId">—</span>
         </div>
       </div>
@@ -86,7 +86,7 @@
   const qs = new URLSearchParams(window.location.search);
 
   const contactId = qs.get("contactId") || "";
-  const name = qs.get("name") || "Candidate";
+  const name = qs.get("name") || "Prospect";
   const email = qs.get("email") || "—";
   const score = qs.get("score") || "87";
   const recommendation = qs.get("recommendation") || "Proceed to Offer";
@@ -95,8 +95,8 @@
   const risk2 = qs.get("risk2") || "Salary expectations slightly above range";
 
   document.getElementById("contactId").textContent = contactId || "—";
-  document.getElementById("candidateName").textContent = name;
-  document.getElementById("candidateEmail").textContent = email;
+  document.getElementById("ProspectName").textContent = name;
+  document.getElementById("ProspectEmail").textContent = email;
   document.getElementById("score").textContent = score;
   document.getElementById("recommendation").textContent = recommendation;
 
@@ -124,4 +124,5 @@
 </script>
 </body>
 </html>
+
 
