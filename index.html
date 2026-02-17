@@ -3,126 +3,291 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Prospect Intelligence Dashboard</title>
+<title>Account Intelligence Panel</title>
 <style>
   body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
-  .container { max-width: 920px; margin:auto; background:#fff; border-radius:10px; padding:20px; box-shadow:0 4px 12px rgba(0,0,0,.10); }
-  .header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; }
-  .header h1 { margin:0; font-size:22px; }
-  .sub { color:#6b7280; font-size:12px; margin-top:4px; }
-  .pill { font-size:12px; background:#eef2ff; color:#3730a3; padding:6px 10px; border-radius:999px; }
-  .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px; }
-  .card { background:#f9fafb; padding:14px; border-radius:8px; border:1px solid #eef2f7; }
+  .container { max-width: 980px; margin:auto; background:#fff; border-radius:12px; padding:18px 18px 22px; box-shadow:0 4px 12px rgba(0,0,0,.10); }
+  .header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px; }
+  .header h1 { margin:0; font-size:20px; }
+  .sub { color:#6b7280; font-size:12px; margin-top:4px; line-height:1.4; }
+  .pill { font-size:12px; background:#eef2ff; color:#3730a3; padding:6px 10px; border-radius:999px; white-space:nowrap; }
+  .grid { display:grid; grid-template-columns: 1.1fr 0.9fr; gap:12px; margin-top:12px; }
+  .col { display:flex; flex-direction:column; gap:12px; }
+  .card { background:#f9fafb; padding:14px; border-radius:10px; border:1px solid #eef2f7; }
   .label { color:#6b7280; font-size:12px; margin-bottom:6px; }
-  .big { font-size:38px; font-weight:800; color:#2563eb; line-height:1; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .kpi { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+  .big { font-size:36px; font-weight:800; color:#2563eb; line-height:1; }
+  .muted { color:#6b7280; font-size:12px; }
   .good { color:#059669; font-weight:700; }
+  .warn { color:#b45309; font-weight:700; }
   .bad { color:#dc2626; font-weight:700; }
   ul { margin:8px 0 0 18px; padding:0; }
-  .btnRow { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
-  button { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:600; }
+  .btnRow { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  button { padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
   .primary { background:#2563eb; color:white; }
   .secondary { background:#111827; color:white; }
-  .toast { margin-top:12px; padding:10px 12px; background:#ecfeff; border:1px solid #a5f3fc; border-radius:8px; color:#155e75; display:none; }
+  .ghost { background:#e5e7eb; color:#111827; }
+  .toast { margin-top:12px; padding:10px 12px; background:#ecfeff; border:1px solid #a5f3fc; border-radius:10px; color:#155e75; display:none; }
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  .divider { height:1px; background:#eef2f7; margin:12px 0; }
+  .tag { font-size:12px; padding:4px 8px; border-radius:999px; background:#e5e7eb; color:#111827; }
+  .tagBlue { background:#dbeafe; color:#1e40af; }
+  .tagGreen { background:#dcfce7; color:#166534; }
+  .tagAmber { background:#ffedd5; color:#9a3412; }
+  .tagRed { background:#fee2e2; color:#991b1b; }
+  .map { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .step { display:flex; justify-content:space-between; gap:10px; padding:10px; border-radius:10px; background:#fff; border:1px solid #eef2f7; }
+  .step strong { font-size:13px; }
+  .step .meta { font-size:12px; color:#6b7280; }
 </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <div>
-        <h1>Prospect Intelligence Dashboard</h1>
+        <h1>Account Intelligence Panel</h1>
         <div class="sub">
-          <span id="ProspectName">Prospect</span> · <span id="ProspectEmail">—</span><br/>
-          Contact ID: <span class="mono" id="contactId">—</span>
+          <strong id="companyName">Prospective Account</strong> · <span id="industry">—</span> · <span id="size">—</span><br/>
+          Primary Contact: <span id="contactName">—</span> · <span id="contactEmail">—</span><br/>
+          HubSpot Contact ID: <span class="mono" id="contactId">—</span> · Owner: <span class="mono" id="ownerId">—</span>
         </div>
       </div>
-      <div class="pill">AI-Powered Signals (Demo)</div>
+      <div class="pill">Signals + Next Best Action</div>
     </div>
 
     <div class="grid">
-      <div class="card">
-        <div class="label">Overall Readiness Score</div>
-        <div class="big"><span id="score">87</span>%</div>
-        <div style="margin-top:10px;">
-          <span class="label">Hiring Recommendation</span><br/>
-          <span class="good" id="recommendation">Proceed to Offer</span>
+      <!-- LEFT COLUMN -->
+      <div class="col">
+        <div class="card">
+          <div class="label">Snapshot</div>
+          <div class="row">
+            <span class="tag tagBlue" id="segmentTag">Segment: —</span>
+            <span class="tag" id="lifecycleTag">Lifecycle: —</span>
+            <span class="tag" id="leadStatusTag">Lead Status: —</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="kpi">
+            <div>
+              <div class="label">Deal Health Score</div>
+              <div class="big"><span id="healthScore">—</span>%</div>
+              <div class="muted">Calculated from CRM completeness + engagement</div>
+            </div>
+            <div>
+              <div class="label">Recommendation</div>
+              <div id="recommendation" class="good">—</div>
+              <div class="muted">Next step suggested from signals</div>
+            </div>
+            <div>
+              <div class="label">Why Now</div>
+              <div id="whyNow" style="font-weight:700;">—</div>
+              <div class="muted">Top buying signal</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="label">Intent & Buying Signals</div>
+          <ul id="signals">
+            <li>Website activity spike last 7 days</li>
+            <li>Hiring for RevOps / Sales Ops roles</li>
+            <li>Tech stack suggests CRM consolidation opportunity</li>
+          </ul>
+          <div class="divider"></div>
+          <div class="label">Risks</div>
+          <ul id="risks">
+            <li><span class="warn">Missing economic buyer</span></li>
+            <li>No meeting scheduled in next 7 days</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="label">Mutual Action Plan (MAP)</div>
+          <div class="muted">A clean path from discovery → close, tied to this account.</div>
+
+          <div class="map" id="map">
+            <div class="step">
+              <div>
+                <strong>Discovery + Success Criteria</strong>
+                <div class="meta">Owner: AE · Due: 3 business days</div>
+              </div>
+              <div class="tag tagAmber">In Progress</div>
+            </div>
+            <div class="step">
+              <div>
+                <strong>Solution Review</strong>
+                <div class="meta">Owner: SE · Due: 7 business days</div>
+              </div>
+              <div class="tag">Not Started</div>
+            </div>
+            <div class="step">
+              <div>
+                <strong>Security / IT Review</strong>
+                <div class="meta">Owner: Buyer IT · Due: 10 business days</div>
+              </div>
+              <div class="tag">Not Started</div>
+            </div>
+            <div class="step">
+              <div>
+                <strong>Commercials + Procurement</strong>
+                <div class="meta">Owner: AE · Due: 14 business days</div>
+              </div>
+              <div class="tag">Not Started</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="label">AI Summary</div>
-        <div id="aiSummary">
-          Strong technical competency and communication. Low operational risk. Primary concern is competing offer timing.
+      <!-- RIGHT COLUMN -->
+      <div class="col">
+        <div class="card">
+          <div class="label">Live CRM Context</div>
+          <div style="font-weight:800; font-size:14px;" id="contactLine">—</div>
+          <div class="muted" id="companyLine">—</div>
+
+          <div class="divider"></div>
+
+          <div class="label">Engagement</div>
+          <div class="row">
+            <span class="tag" id="lastTouchTag">Last touch: —</span>
+            <span class="tag" id="meetingsTag">Meetings (30d): —</span>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="label">Next Best Actions</div>
+          <div class="btnRow">
+            <button class="primary" id="createTaskBtn">Create Follow-up Task</button>
+            <button class="secondary" id="logNoteBtn">Log Note</button>
+            <button class="ghost" id="triggerWorkflowBtn">Trigger Workflow</button>
+          </div>
+
+          <div class="toast" id="toast"></div>
         </div>
-        <div style="margin-top:10px;" class="label">Confidence</div>
-        <div><strong>High</strong> (simulated)</div>
-      </div>
 
-      <div class="card">
-        <div class="label">Risk Flags</div>
-        <ul id="riskFlags">
-          <li><span class="bad">Competing offer from another company</span></li>
-          <li>Salary expectations slightly above range</li>
-        </ul>
-      </div>
-
-      <div class="card">
-        <div class="label">Recommended Next Action</div>
-        <div id="nextAction">
-          Schedule final executive alignment and prepare compensation package.
+        <div class="card">
+          <div class="label">Talk Track Summary</div>
+          <div id="talkTrack" style="line-height:1.4;">
+            This panel consolidates third-party account intelligence and converts it into guided next steps inside HubSpot,
+            reducing context switching and improving speed-to-action.
+          </div>
         </div>
-
-        <div class="btnRow">
-          <button class="primary" id="triggerBtn">Trigger Offer Workflow</button>
-          <button class="secondary" id="logBtn">Log Decision Note</button>
-        </div>
-
-        <div class="toast" id="toast"></div>
       </div>
     </div>
   </div>
 
 <script>
   const qs = new URLSearchParams(window.location.search);
+  const get = (k, fallback="") => qs.get(k) || fallback;
 
-  const contactId = qs.get("contactId") || "";
-  const name = qs.get("name") || "Prospect";
-  const email = qs.get("email") || "—";
-  const score = qs.get("score") || "87";
-  const recommendation = qs.get("recommendation") || "Proceed to Offer";
+  // Core identifiers
+  const contactId = get("contactId", "");
+  const name = get("name", "Primary Contact");
+  const email = get("email", "—");
+  const ownerId = get("ownerId", "—");
 
-  const risk1 = qs.get("risk1") || "Competing offer from another company";
-  const risk2 = qs.get("risk2") || "Salary expectations slightly above range";
+  // Account context
+  const company = get("company", "Prospective Account");
+  const industry = get("industry", "—");
+  const size = get("size", "—");
+  const segment = get("segment", "—");
 
+  // Sales status fields
+  const lifecycle = get("lifecyclestage", "—");
+  const leadStatus = get("leadStatus", "—");
+
+  // Engagement (demo fields you can pass later)
+  const lastTouch = get("lastTouch", "—");
+  const meetings30 = get("meetings30", "—");
+
+  // Health scoring (passed in or computed)
+  let healthScore = parseInt(get("healthScore", ""), 10);
+  if (Number.isNaN(healthScore)) {
+    // Simple deterministic scoring (demo-real)
+    let score = 55;
+    if (email && email !== "—") score += 10;
+    if (company && company !== "Prospective Account") score += 8;
+    if (lifecycle && lifecycle !== "—") score += 5;
+    if (leadStatus && leadStatus !== "—") score += 5;
+    if (meetings30 && meetings30 !== "—") score += 7;
+    healthScore = Math.max(0, Math.min(100, score));
+  }
+
+  let rec = get("recommendation", "");
+  if (!rec) {
+    if (healthScore >= 80) rec = "Advance to Solution Review";
+    else if (healthScore >= 65) rec = "Schedule Discovery Follow-up";
+    else rec = "Fill Data Gaps + Re-Engage";
+  }
+
+  let whyNow = get("whyNow", "");
+  if (!whyNow) {
+    if (healthScore >= 80) whyNow = "Active engagement + strong fit";
+    else if (healthScore >= 65) whyNow = "Engagement trending up";
+    else whyNow = "Signals present, data incomplete";
+  }
+
+  // Render header
+  document.getElementById("companyName").textContent = company;
+  document.getElementById("industry").textContent = industry;
+  document.getElementById("size").textContent = size;
+  document.getElementById("contactName").textContent = name;
+  document.getElementById("contactEmail").textContent = email;
   document.getElementById("contactId").textContent = contactId || "—";
-  document.getElementById("ProspectName").textContent = name;
-  document.getElementById("ProspectEmail").textContent = email;
-  document.getElementById("score").textContent = score;
-  document.getElementById("recommendation").textContent = recommendation;
+  document.getElementById("ownerId").textContent = ownerId || "—";
 
-  const risks = document.getElementById("riskFlags");
-  risks.innerHTML = `
-    <li><span class="bad">${risk1}</span></li>
-    <li>${risk2}</li>
-  `;
+  // Tags
+  document.getElementById("segmentTag").textContent = `Segment: ${segment}`;
+  document.getElementById("lifecycleTag").textContent = `Lifecycle: ${lifecycle}`;
+  document.getElementById("leadStatusTag").textContent = `Lead Status: ${leadStatus}`;
 
+  // KPIs
+  document.getElementById("healthScore").textContent = String(healthScore);
+  document.getElementById("recommendation").textContent = rec;
+  document.getElementById("whyNow").textContent = whyNow;
+
+  // Context block
+  document.getElementById("contactLine").textContent = `${name} · ${email}`;
+  document.getElementById("companyLine").textContent = `${company} · ${industry} · ${size}`;
+  document.getElementById("lastTouchTag").textContent = `Last touch: ${lastTouch}`;
+  document.getElementById("meetingsTag").textContent = `Meetings (30d): ${meetings30}`;
+
+  // Signals/Risks (can be passed in later as signal1/signal2/risk1/risk2)
+  const signals = [
+    get("signal1","Website activity spike last 7 days"),
+    get("signal2","Hiring for RevOps / Sales Ops roles"),
+    get("signal3","Tech stack suggests CRM consolidation opportunity")
+  ];
+  document.getElementById("signals").innerHTML = signals.map(s => `<li>${s}</li>`).join("");
+
+  const risks = [
+    get("risk1","<span class='warn'>Missing economic buyer</span>"),
+    get("risk2","No meeting scheduled in next 7 days")
+  ];
+  document.getElementById("risks").innerHTML = risks.map(r => `<li>${r}</li>`).join("");
+
+  // Buttons (demo behavior). In production these call serverless APIs.
   const toast = document.getElementById("toast");
   const showToast = (msg) => {
     toast.textContent = msg;
     toast.style.display = "block";
-    setTimeout(() => (toast.style.display = "none"), 2500);
+    setTimeout(() => (toast.style.display = "none"), 2400);
   };
 
-  document.getElementById("triggerBtn").addEventListener("click", () => {
-    // Demo behavior (no real HubSpot write-back from a static GitHub page)
-    showToast("Offer workflow triggered (demo). Next: in production, this would call a HubSpot workflow/API.");
+  document.getElementById("createTaskBtn").addEventListener("click", () => {
+    showToast("Follow-up task created (demo). In production: create Task + set due date + assign owner.");
   });
 
-  document.getElementById("logBtn").addEventListener("click", () => {
-    showToast("Decision note logged (demo). Next: in production, write a note/engagement to the CRM record.");
+  document.getElementById("logNoteBtn").addEventListener("click", () => {
+    showToast("Note logged (demo). In production: write engagement note to this contact/deal.");
+  });
+
+  document.getElementById("triggerWorkflowBtn").addEventListener("click", () => {
+    showToast("Workflow triggered (demo). In production: update property → workflow enrollment.");
   });
 </script>
 </body>
 </html>
-
 
