@@ -1,575 +1,424 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Account Intelligence Panel</title>
-  <style>
-    :root{
-      --bg: #f6f7fb;
-      --panel: #ffffff;
-      --text: #101828;
-      --muted: #667085;
-      --border: #e4e7ec;
-      --border2:#eaecf0;
-      --shadow: 0 1px 2px rgba(16,24,40,.06), 0 2px 6px rgba(16,24,40,.08);
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Account Intelligence Panel</title>
 
-      --blue: #2563eb;
-      --blue2:#e8efff;
-      --green:#027a48;
-      --green2:#ecfdf3;
-      --amber:#b54708;
-      --amber2:#fffaeb;
-      --red:#b42318;
-      --red2:#fef3f2;
+<style>
+  :root{
+    --bg: #f4f6f8;
+    --surface: #ffffff;
+    --border: #e6e9f0;
+    --muted: #667085;
+    --text: #111827;
+    --shadow1: 0 1px 2px rgba(16,24,40,.04);
+    --shadow2: 0 4px 14px rgba(16,24,40,.06);
+    --radius: 12px;
+  }
 
-      --pill:#f2f4f7;
-      --pillText:#344054;
+  * { box-sizing: border-box; }
+  body{
+    margin:0;
+    padding:22px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  }
 
-      --radius: 10px;
-      --radiusSm: 8px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-    }
+  .container{
+    max-width: 980px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 10px 30px rgba(16,24,40,.08);
+  }
 
-    * { box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--text);
-    }
+  /* Header */
+  .header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom: 14px;
+  }
+  .header h1{
+    margin:0;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .sub{
+    margin-top:6px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.35;
+  }
+  .mono{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+  }
+  .tag{
+    font-size:12px;
+    background:#eef2ff;
+    color:#3730a3;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid #e0e7ff;
+    white-space:nowrap;
+  }
 
-    .app{
-      max-width: 1120px;
-      margin: 18px auto;
-      padding: 0 14px 18px;
-    }
+  /* Layout */
+  .grid{
+    display:grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 12px;
+    align-items:start;
+  }
+  @media (max-width: 920px){
+    .grid{ grid-template-columns: 1fr; }
+  }
 
-    /* Top bar */
-    .topbar{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      box-shadow: var(--shadow);
-    }
+  /* Panels */
+  .panel{
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: var(--shadow1), var(--shadow2);
+    position: relative;
+    overflow: hidden;
+    transform: translateY(0);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .panel::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    right:0;
+    height:3px;
+    background: linear-gradient(90deg,#2563eb,#7c3aed,#06b6d4);
+    opacity:.18;
+  }
+  .panel:hover{
+    box-shadow:
+      0 2px 6px rgba(16,24,40,.06),
+      0 10px 24px rgba(16,24,40,.08);
+    transform: translateY(-1px);
+  }
 
-    .titleWrap{
-      min-width: 0;
-    }
+  /* Tinted panel variants */
+  .panelSnapshot{
+    background: linear-gradient(180deg,#f8fbff 0%, #ffffff 40%);
+  }
+  .panelSignals{
+    background: linear-gradient(180deg,#f8fffb 0%, #ffffff 45%);
+  }
+  .panelMap{
+    background: linear-gradient(180deg,#fffdf7 0%, #ffffff 45%);
+  }
+  .panelContext{
+    background: linear-gradient(180deg,#f7f9ff 0%, #ffffff 45%);
+  }
+  .panelAI{
+    background:
+      radial-gradient(circle at top right, rgba(124,58,237,.08), transparent 40%),
+      radial-gradient(circle at bottom left, rgba(37,99,235,.06), transparent 50%),
+      #ffffff;
+  }
 
-    .kicker{
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 600;
-      letter-spacing: .03em;
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
+  .panelHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 10px;
+  }
+  .panelTitle{
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.08em;
+    color:#667085;
+    text-transform:uppercase;
+  }
 
-    .h1{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      gap:10px;
-      margin:0;
-      font-size: 18px;
-      font-weight: 650;
-      letter-spacing: -.01em;
-    }
+  .divider{
+    height:1px;
+    background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+    margin: 12px 0;
+  }
 
-    .metaRow{
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.45;
-    }
+  /* Pills */
+  .pillRow{ display:flex; gap:8px; flex-wrap:wrap; }
+  .pill{
+    font-size:12px;
+    padding:6px 10px;
+    border-radius:999px;
+    border:1px solid #e5e7eb;
+    background:#f9fafb;
+    color:#344054;
+  }
+  .pillProgress{
+    background:#fff4e5;
+    color:#b45309;
+    border-color:#fde3b0;
+  }
+  .pillDone{
+    background:#ecfdf3;
+    color:#027a48;
+    border-color:#b7ebc6;
+  }
+  .pillFuture{
+    background:#f2f4f7;
+    color:#667085;
+    border-color:#e4e7ec;
+  }
 
-    .metaRow strong{ color: var(--text); font-weight: 600; }
-    .metaInline{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top: 6px;
-    }
+  /* Score */
+  .scoreWrap{
+    display:flex;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .score{
+    position:relative;
+    min-width: 110px;
+  }
+  .score::after{
+    content:"";
+    position:absolute;
+    left:-10px;
+    top:-10px;
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(37,99,235,.12) 0%, rgba(37,99,235,0) 70%);
+    z-index:-1;
+  }
+  .scoreBig{
+    font-size: 36px;
+    font-weight: 900;
+    color: #2563eb;
+    letter-spacing: -.02em;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
+    line-height: 1;
+  }
+  .muted{ color: var(--muted); font-size:12px; }
+  .good{ color:#027a48; font-weight:800; }
+  .bad{ color:#b42318; font-weight:800; }
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: var(--pill);
-      color: var(--pillText);
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid var(--border2);
-      white-space: nowrap;
-    }
+  ul{
+    margin: 10px 0 0 18px;
+    padding:0;
+  }
+  li{ margin: 6px 0; }
 
-    .pillBlue{ background: var(--blue2); color: #1d4ed8; border-color:#d7e3ff; }
-    .pillGreen{ background: var(--green2); color: var(--green); border-color:#c7f0d7; }
-    .pillAmber{ background: var(--amber2); color: var(--amber); border-color:#fce7b0; }
-    .pillRed{ background: var(--red2); color: var(--red); border-color:#fecaca; }
+  /* Buttons */
+  .btnRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  button{
+    padding:10px 14px;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    font-weight:700;
+    font-size: 13px;
+    transition: transform .06s ease, filter .15s ease;
+  }
+  button:active{ transform: translateY(1px); }
 
-    .rightBadges{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-      align-items:flex-start;
-    }
+  .btnPrimary{
+    background: linear-gradient(180deg,#2563eb,#1d4ed8);
+    color:#fff;
+    border:1px solid #1e40af;
+    box-shadow: 0 1px 2px rgba(16,24,40,.1);
+  }
+  .btnPrimary:hover{ filter: brightness(1.03); }
+  .btnGhost{
+    background:#ffffff;
+    border:1px solid #d0d5dd;
+    color:#344054;
+    box-shadow: 0 1px 1px rgba(16,24,40,.05);
+  }
+  .btnGhost:hover{ background:#f9fafb; }
 
-    /* Grid */
-    .grid{
-      display:grid;
-      grid-template-columns: 1.25fr .9fr;
-      gap: 12px;
-      margin-top: 12px;
-    }
+  .toast{
+    margin-top: 12px;
+    padding: 10px 12px;
+    background:#ecfeff;
+    border:1px solid #a5f3fc;
+    border-radius:10px;
+    color:#155e75;
+    display:none;
+    font-size: 12px;
+  }
 
-    @media (max-width: 980px){
-      .grid{ grid-template-columns: 1fr; }
-    }
+  /* MAP steps */
+  .mapStep{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 10px 10px;
+    border: 1px solid #eef2f7;
+    background:#ffffff;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+  .mapStep strong{ font-size: 13px; }
+  .mapMeta{ font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-    /* Panels */
-    .panel{
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    .panelHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom: 10px;
-    }
-
-    .panelTitle{
-      font-size: 12px;
-      font-weight: 800;
-      color: var(--muted);
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      margin:0;
-    }
-
-    .divider{
-      height:1px;
-      background: var(--border2);
-      margin: 10px 0;
-    }
-
-    /* Summary (Deal Health) */
-    .healthRow{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 520px){
-      .healthRow{ grid-template-columns: 1fr; }
-    }
-
-    .score{
-      display:flex;
-      align-items:flex-end;
-      gap:10px;
-    }
-
-    .scoreBig{
-      font-size: 34px;
-      font-weight: 800;
-      color: var(--blue);
-      line-height: 1;
-    }
-
-    .scoreMeta{
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.3;
-      padding-bottom: 2px;
-    }
-
-    .kv{
-      display:grid;
-      gap: 8px;
-    }
-
-    .kvItem{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      font-size: 13px;
-      padding: 8px 10px;
-      border: 1px solid var(--border2);
-      border-radius: var(--radiusSm);
-      background: #fbfcfe;
-    }
-
-    .kvItem span{ color: var(--muted); font-weight: 600; }
-    .kvItem strong{ font-weight: 700; color: var(--text); }
-
-    /* Lists */
-    ul{
-      margin: 8px 0 0 18px;
-      padding:0;
-      color: var(--text);
-      font-size: 13px;
-    }
-
-    li{ margin: 6px 0; }
-
-    .muted{
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    /* MAP */
-    .map{
-      display:grid;
-      gap: 8px;
-    }
-
-    .mapStep{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      padding: 10px 10px;
-      border: 1px solid var(--border2);
-      border-radius: var(--radiusSm);
-      background: #fbfcfe;
-    }
-
-    .mapLeft{
-      min-width:0;
-    }
-
-    .mapName{
-      font-weight: 750;
-      font-size: 13px;
-      margin:0;
-    }
-
-    .mapMeta{
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    /* Right column widgets */
-    .contextGrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .contextRow{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      padding: 8px 10px;
-      border: 1px solid var(--border2);
-      border-radius: var(--radiusSm);
-      background:#fbfcfe;
-      font-size: 13px;
-    }
-    .contextRow span{ color: var(--muted); font-weight: 600; }
-    .contextRow strong{ font-weight: 700; }
-
-    /* Buttons */
-    .btnRow{
-      display:flex;
-      gap: 8px;
-      flex-wrap:wrap;
-      margin-top: 10px;
-    }
-
-    button{
-      border-radius: 8px;
-      padding: 9px 12px;
-      border: 1px solid transparent;
-      cursor:pointer;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: -.01em;
-      transition: transform .02s ease, opacity .15s ease, background .15s ease, border .15s ease;
-    }
-    button:active{ transform: translateY(1px); }
-
-    .btnPrimary{
-      background: var(--blue);
-      color:#fff;
-      border-color: #1d4ed8;
-    }
-    .btnPrimary:hover{ opacity: .95; }
-
-    .btnGhost{
-      background:#fff;
-      border-color: #d0d5dd;
-      color: #344054;
-    }
-    .btnGhost:hover{ background:#f9fafb; }
-
-    .btnMuted{
-      background:#f2f4f7;
-      border-color:#e4e7ec;
-      color:#667085;
-      cursor: not-allowed;
-    }
-
-    /* Toast */
-    .toast{
-      display:none;
-      margin-top: 10px;
-      padding: 10px 10px;
-      border-radius: 10px;
-      border: 1px solid #c7d2fe;
-      background:#eef2ff;
-      color:#1e3a8a;
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    /* Small helper */
-    .mono { font-family: var(--mono); font-size: 12px; }
-  </style>
+  /* Right column quick card */
+  .contextName{
+    font-weight: 800;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .smallLabel{
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+</style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="topbar">
-      <div class="titleWrap">
-        <div class="kicker">Prospect Intelligence</div>
-        <h1 class="h1">
-          <span id="panelTitle">Account Intelligence Panel</span>
-          <span class="pill pillBlue" id="signalPill">Signals + Next Best Action</span>
-        </h1>
-
-        <div class="metaRow">
-          <strong>Prospective Account:</strong> <span id="accountName">Cupcake Labs</span><br/>
-          <strong>Primary Contact:</strong> <span id="contactName">Brian Halligan</span> · <span id="contactEmail">bh@cupcakelabs.com</span><br/>
-          <strong>HubSpot Contact ID:</strong> <span class="mono" id="contactId">—</span> ·
-          <strong>Owner:</strong> <span id="ownerName">Isaac Herrera</span>
-        </div>
-
-        <div class="metaInline">
-          <span class="pill" id="segmentPill">Segment: —</span>
-          <span class="pill" id="lifecyclePill">Lifecycle: —</span>
-          <span class="pill" id="leadStatusPill">Lead Status: —</span>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Account Intelligence Panel</h1>
+        <div class="sub">
+          Prospective Account: <span id="accountName">—</span><br/>
+          Primary Contact: <span id="contactName">—</span> · <span id="contactEmail">—</span><br/>
+          HubSpot Contact ID: <span class="mono" id="contactId">—</span> · Owner: <span id="owner">—</span>
         </div>
       </div>
-
-      <div class="rightBadges">
-        <span class="pill pillGreen" id="trendPill">Engagement: Trending Up</span>
-        <span class="pill" id="lastTouchPill">Last touch: —</span>
-        <span class="pill" id="meetingsPill">Meetings (30d): —</span>
-      </div>
+      <div class="tag">Signals + Next Best Action</div>
     </div>
 
     <div class="grid">
       <!-- LEFT COLUMN -->
-      <div class="col">
-        <div class="panel">
+      <div>
+        <div class="panel panelSnapshot">
           <div class="panelHeader">
-            <p class="panelTitle">Snapshot</p>
-            <span class="pill pillBlue" id="recommendationPill">Recommendation: Proceed</span>
+            <div class="panelTitle">Snapshot</div>
+            <div class="pillRow">
+              <span class="pill" id="segmentPill">Segment: —</span>
+              <span class="pill" id="lifecyclePill">Lifecycle: —</span>
+              <span class="pill" id="leadStatusPill">Lead Status: —</span>
+            </div>
           </div>
 
-          <div class="healthRow">
-            <div>
-              <div class="score">
-                <div class="scoreBig"><span id="healthScore">65</span>%</div>
-                <div class="scoreMeta">
-                  Deal Health Score<br/>
-                  <span class="muted">Calculated from CRM completeness + engagement</span>
-                </div>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="kv">
-                <div class="kvItem">
-                  <span>Why now</span>
-                  <strong id="whyNow">Engagement trending up</strong>
-                </div>
-                <div class="kvItem">
-                  <span>Primary motion</span>
-                  <strong id="motion">CRM consolidation</strong>
-                </div>
-                <div class="kvItem">
-                  <span>Confidence</span>
-                  <strong id="confidence">High (simulated)</strong>
-                </div>
-              </div>
+          <div class="scoreWrap">
+            <div class="score">
+              <div class="muted">Deal Health Score</div>
+              <div class="scoreBig"><span id="healthScore">65</span>%</div>
+              <div class="muted">Calculated from CRM completeness + engagement</div>
             </div>
 
-            <div>
-              <div class="kv">
-                <div class="kvItem">
-                  <span>Stage</span>
-                  <strong id="stage">Discovery</strong>
-                </div>
-                <div class="kvItem">
-                  <span>ICP Fit</span>
-                  <strong id="icpFit">Strong</strong>
-                </div>
-                <div class="kvItem">
-                  <span>Next best action</span>
-                  <strong id="nba">Align stakeholders + schedule revops deep dive</strong>
-                </div>
-              </div>
+            <div style="flex:1;">
+              <div class="muted">Recommendation</div>
+              <div class="good" id="recommendation" style="font-size:16px; margin-top:2px;">Proceed to Quote</div>
 
               <div class="divider"></div>
 
-              <div class="muted" id="snapshotNote">
-                This panel consolidates third-party account intelligence and converts it into guided next steps inside HubSpot—reducing context switching and improving speed-to-action.
-              </div>
+              <div class="muted">Why Now</div>
+              <div style="font-weight:800; margin-top:2px;" id="whyNow">Engagement trending up</div>
+              <div class="muted" id="whyNowDetail">Top buying signal</div>
             </div>
           </div>
         </div>
 
-        <div class="panel" style="margin-top:12px;">
+        <div class="panel panelSignals" style="margin-top:12px;">
           <div class="panelHeader">
-            <p class="panelTitle">Intent + Buying Signals</p>
-            <span class="pill pillGreen" id="signalsPill">Signal Strength: Medium</span>
+            <div class="panelTitle">Intent & Buying Signals</div>
           </div>
           <ul id="signalsList">
-            <li>Website activity spike in last 7 days</li>
+            <li>Website activity spike last 7 days</li>
             <li>Hiring for RevOps / Sales Ops roles</li>
             <li>Tech stack suggests CRM consolidation opportunity</li>
           </ul>
 
           <div class="divider"></div>
 
-          <div class="panelHeader" style="margin-bottom:0;">
-            <p class="panelTitle">Risks</p>
-            <span class="pill pillAmber" id="riskPill">Risk Level: Moderate</span>
-          </div>
+          <div class="panelTitle">Risks</div>
           <ul id="risksList">
-            <li><strong style="color:var(--red);">Competing offer from another vendor</strong></li>
+            <li><span class="bad">Competing offer from another vendor</span></li>
             <li>Cost expectations slightly below range</li>
           </ul>
         </div>
 
-        <div class="panel" style="margin-top:12px;">
+        <div class="panel panelMap" style="margin-top:12px;">
           <div class="panelHeader">
-            <p class="panelTitle">Mutual Action Plan (MAP)</p>
-            <span class="pill" id="mapPill">Path to close → tied to this account</span>
+            <div class="panelTitle">Mutual Action Plan (MAP)</div>
+          </div>
+          <div class="muted">A clean path from discovery → close, tied to this account.</div>
+
+          <div class="mapStep">
+            <div>
+              <strong>Discovery → Success Criteria</strong>
+              <div class="mapMeta">Owner: AE · Due: 3 business days</div>
+            </div>
+            <span class="pill pillProgress">In Progress</span>
           </div>
 
-          <div class="map" id="mapSteps">
-            <div class="mapStep">
-              <div class="mapLeft">
-                <p class="mapName">Discovery → Success Criteria</p>
-                <div class="mapMeta">Owner: AE · Due: 3 business days</div>
-              </div>
-              <span class="pill pillAmber">In Progress</span>
+          <div class="mapStep">
+            <div>
+              <strong>Solution Review</strong>
+              <div class="mapMeta">Owner: SE · Due: 7 business days</div>
             </div>
+            <span class="pill pillFuture">Not Started</span>
+          </div>
 
-            <div class="mapStep">
-              <div class="mapLeft">
-                <p class="mapName">Solution Review</p>
-                <div class="mapMeta">Owner: SE · Due: 7 business days</div>
-              </div>
-              <span class="pill">Not Started</span>
+          <div class="mapStep">
+            <div>
+              <strong>Security / IT Review</strong>
+              <div class="mapMeta">Owner: Buyer IT · Due: 10 business days</div>
             </div>
-
-            <div class="mapStep">
-              <div class="mapLeft">
-                <p class="mapName">Security / IT Review</p>
-                <div class="mapMeta">Owner: Buyer IT · Due: 10 business days</div>
-              </div>
-              <span class="pill">Not Started</span>
-            </div>
-
-            <div class="mapStep">
-              <div class="mapLeft">
-                <p class="mapName">Commercials + Exec Alignment</p>
-                <div class="mapMeta">Owner: AE + Finance · Due: 12 business days</div>
-              </div>
-              <span class="pill">Not Started</span>
-            </div>
+            <span class="pill pillFuture">Not Started</span>
           </div>
         </div>
       </div>
 
       <!-- RIGHT COLUMN -->
-      <div class="col">
-        <div class="panel">
+      <div>
+        <div class="panel panelContext">
           <div class="panelHeader">
-            <p class="panelTitle">Live CRM Context</p>
-            <span class="pill pillBlue">From record context</span>
+            <div class="panelTitle">Live CRM Context</div>
           </div>
 
-          <div class="contextGrid">
-            <div class="contextRow">
-              <span>Contact</span>
-              <strong id="contextContact">Brian Halligan</strong>
-            </div>
-            <div class="contextRow">
-              <span>Email</span>
-              <strong id="contextEmail">bh@cupcakelabs.com</strong>
-            </div>
-            <div class="contextRow">
-              <span>Owner</span>
-              <strong id="contextOwner">Isaac Herrera</strong>
-            </div>
-            <div class="contextRow">
-              <span>Lifecycle</span>
-              <strong id="contextLifecycle">Lead</strong>
-            </div>
-            <div class="contextRow">
-              <span>Lead Status</span>
-              <strong id="contextLeadStatus">In progress</strong>
-            </div>
+          <div class="contextName"><span id="contextName">—</span> · <span id="contextEmail">—</span></div>
+          <div class="muted">Prospective Account: <span id="contextAccount">—</span></div>
+
+          <div class="divider"></div>
+
+          <div class="smallLabel">Engagement</div>
+          <div class="pillRow">
+            <span class="pill" id="lastTouch">Last touch: —</span>
+            <span class="pill" id="meetings30d">Meetings (30d): —</span>
           </div>
 
           <div class="divider"></div>
 
-          <div class="panelHeader" style="margin-bottom: 6px;">
-            <p class="panelTitle">Next Best Actions</p>
-          </div>
-
+          <div class="smallLabel">Next Best Actions</div>
           <div class="btnRow">
-            <button class="btnPrimary" id="taskBtn">Create Follow-up Task</button>
+            <button class="btnPrimary" id="followUpBtn">Create Follow-up Task</button>
             <button class="btnGhost" id="noteBtn">Log Note</button>
-            <button class="btnMuted" id="wfBtn" title="Demo-only (requires server/API)">Trigger Workflow</button>
+            <button class="btnGhost" id="workflowBtn">Trigger Workflow</button>
           </div>
 
           <div class="toast" id="toast"></div>
         </div>
 
-        <div class="panel" style="margin-top:12px;">
+        <div class="panel panelAI" style="margin-top:12px;">
           <div class="panelHeader">
-            <p class="panelTitle">Talk Track Summary</p>
-            <span class="pill">What to say next</span>
+            <div class="panelTitle">Talk Track Summary</div>
           </div>
           <div class="muted" id="talkTrack">
-            The account shows increasing engagement and signals that typically precede a platform consolidation decision.
-            Use this panel to connect the dots for the buyer: surface why-now indicators, confirm stakeholders and timing,
-            and drive the next step (RevOps deep dive) without leaving the CRM.
-          </div>
-        </div>
-
-        <div class="panel" style="margin-top:12px;">
-          <div class="panelHeader">
-            <p class="panelTitle">AI Summary (Demo)</p>
-            <span class="pill pillBlue">Simulated</span>
-          </div>
-          <div class="muted" id="aiSummary">
-            Fit is strong based on growth signals and operational complexity. Recommend anchoring the conversation on
-            reporting reliability, lifecycle automation, and speed-to-action. Primary risk is a competing vendor timeline.
+            This panel consolidates third-party account intelligence and converts it into guided next steps inside HubSpot,
+            reducing context switching and improving speed-to-action.
           </div>
         </div>
       </div>
@@ -577,102 +426,69 @@
   </div>
 
 <script>
-  // Query param helper
+  // Query params allow your HubSpot UI Extension to pass "real-ish" CRM context into this iframe URL:
+  // ?contactId=123&name=Brian%20Halligan&email=bh@cupcakelabs.com&account=Cupcake%20Labs&owner=Isaac%20Herrera
   const qs = new URLSearchParams(window.location.search);
-  const get = (k, fallback="—") => (qs.get(k) || fallback);
 
-  // Fields you can pass from HubSpot iframe URL
-  const data = {
-    account: get("account", "Cupcake Labs"),
-    name: get("name", "Brian Halligan"),
-    email: get("email", "bh@cupcakelabs.com"),
-    contactId: get("contactId", "—"),
-    owner: get("owner", "Isaac Herrera"),
+  const contactId = qs.get("contactId") || "";
+  const name = qs.get("name") || "Brian Halligan";
+  const email = qs.get("email") || "bh@cupcakelabs.com";
+  const account = qs.get("account") || "Cupcake Labs";
+  const owner = qs.get("owner") || "Isaac Herrera";
 
-    segment: get("segment", "Mid-Market"),
-    lifecycle: get("lifecycle", "Lead"),
-    leadStatus: get("leadStatus", "In progress"),
+  const segment = qs.get("segment") || "Mid-Market";
+  const lifecycle = qs.get("lifecycle") || "Lead";
+  const leadStatus = qs.get("leadStatus") || "In progress";
 
-    lastTouch: get("lastTouch", "Today"),
-    meetings30: get("meetings30", "1"),
+  const score = qs.get("score") || "65";
+  const recommendation = qs.get("recommendation") || "Proceed to Quote";
+  const whyNow = qs.get("whyNow") || "Engagement trending up";
+  const whyNowDetail = qs.get("whyNowDetail") || "Top buying signal";
 
-    health: get("health", "65"),
-    recommendation: get("recommendation", "Proceed to Quote"),
-    whyNow: get("whyNow", "Engagement trending up"),
-    stage: get("stage", "Discovery"),
-    icpFit: get("icpFit", "Strong"),
-    nba: get("nba", "Align stakeholders + schedule RevOps deep dive"),
+  const lastTouch = qs.get("lastTouch") || "Call logged today";
+  const meetings30d = qs.get("meetings30d") || "1";
 
-    // Optional list items
-    signal1: get("signal1", "Website activity spike in last 7 days"),
-    signal2: get("signal2", "Hiring for RevOps / Sales Ops roles"),
-    signal3: get("signal3", "Tech stack suggests CRM consolidation opportunity"),
+  // Populate header
+  document.getElementById("accountName").textContent = account;
+  document.getElementById("contactName").textContent = name;
+  document.getElementById("contactEmail").textContent = email;
+  document.getElementById("contactId").textContent = contactId || "—";
+  document.getElementById("owner").textContent = owner;
 
-    risk1: get("risk1", "Competing offer from another vendor"),
-    risk2: get("risk2", "Cost expectations slightly below range")
-  };
+  // Pills
+  document.getElementById("segmentPill").textContent = `Segment: ${segment}`;
+  document.getElementById("lifecyclePill").textContent = `Lifecycle: ${lifecycle}`;
+  document.getElementById("leadStatusPill").textContent = `Lead Status: ${leadStatus}`;
 
-  // Apply to UI
-  document.getElementById("accountName").textContent = data.account;
-  document.getElementById("contactName").textContent = data.name;
-  document.getElementById("contactEmail").textContent = data.email;
-  document.getElementById("contactId").textContent = data.contactId;
-  document.getElementById("ownerName").textContent = data.owner;
+  // Score + rationale
+  document.getElementById("healthScore").textContent = score;
+  document.getElementById("recommendation").textContent = recommendation;
+  document.getElementById("whyNow").textContent = whyNow;
+  document.getElementById("whyNowDetail").textContent = whyNowDetail;
 
-  document.getElementById("segmentPill").textContent = `Segment: ${data.segment}`;
-  document.getElementById("lifecyclePill").textContent = `Lifecycle: ${data.lifecycle}`;
-  document.getElementById("leadStatusPill").textContent = `Lead Status: ${data.leadStatus}`;
+  // Context
+  document.getElementById("contextName").textContent = name;
+  document.getElementById("contextEmail").textContent = email;
+  document.getElementById("contextAccount").textContent = account;
+  document.getElementById("lastTouch").textContent = `Last touch: ${lastTouch}`;
+  document.getElementById("meetings30d").textContent = `Meetings (30d): ${meetings30d}`;
 
-  document.getElementById("lastTouchPill").textContent = `Last touch: ${data.lastTouch}`;
-  document.getElementById("meetingsPill").textContent = `Meetings (30d): ${data.meetings30}`;
-
-  document.getElementById("healthScore").textContent = data.health;
-  document.getElementById("whyNow").textContent = data.whyNow;
-  document.getElementById("stage").textContent = data.stage;
-  document.getElementById("icpFit").textContent = data.icpFit;
-  document.getElementById("nba").textContent = data.nba;
-
-  // Recommendation pill coloring
-  const rec = data.recommendation.toLowerCase();
-  const recPill = document.getElementById("recommendationPill");
-  recPill.textContent = `Recommendation: ${data.recommendation}`;
-  recPill.classList.remove("pillGreen","pillAmber","pillRed","pillBlue");
-  if (rec.includes("offer") || rec.includes("proceed") || rec.includes("quote")) recPill.classList.add("pillGreen");
-  else if (rec.includes("hold") || rec.includes("review")) recPill.classList.add("pillAmber");
-  else recPill.classList.add("pillBlue");
-
-  // Signals/Risks lists
-  document.getElementById("signalsList").innerHTML = `
-    <li>${data.signal1}</li>
-    <li>${data.signal2}</li>
-    <li>${data.signal3}</li>
-  `;
-  document.getElementById("risksList").innerHTML = `
-    <li><strong style="color:var(--red);">${data.risk1}</strong></li>
-    <li>${data.risk2}</li>
-  `;
-
-  // Context box
-  document.getElementById("contextContact").textContent = data.name;
-  document.getElementById("contextEmail").textContent = data.email;
-  document.getElementById("contextOwner").textContent = data.owner;
-  document.getElementById("contextLifecycle").textContent = data.lifecycle;
-  document.getElementById("contextLeadStatus").textContent = data.leadStatus;
-
-  // Toast actions (demo)
+  // Toast helpers (demo only)
   const toast = document.getElementById("toast");
   const showToast = (msg) => {
     toast.textContent = msg;
     toast.style.display = "block";
-    clearTimeout(window.__t);
-    window.__t = setTimeout(()=> toast.style.display="none", 2600);
+    setTimeout(() => (toast.style.display = "none"), 2600);
   };
 
-  document.getElementById("taskBtn").addEventListener("click", ()=>{
-    showToast("Follow-up task created (demo). In production: write task to CRM + assign owner.");
+  document.getElementById("followUpBtn").addEventListener("click", () => {
+    showToast("Follow-up task created (demo). Next: write task to HubSpot via serverless/API.");
   });
-  document.getElementById("noteBtn").addEventListener("click", ()=>{
-    showToast("Note logged (demo). In production: create engagement note on the record.");
+  document.getElementById("noteBtn").addEventListener("click", () => {
+    showToast("Note logged (demo). Next: create engagement note on the CRM record.");
+  });
+  document.getElementById("workflowBtn").addEventListener("click", () => {
+    showToast("Workflow triggered (demo). Next: enroll record in workflow via API.");
   });
 </script>
 </body>
