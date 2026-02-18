@@ -1,140 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Account Intelligence Panel</title>
-<style>
-  body { font-family: Arial, sans-serif; background:#f4f6f8; margin:0; padding:20px; }
-  .container { max-width: 980px; margin:auto; background:#fff; border-radius:12px; padding:18px 18px 22px; box-shadow:0 4px 12px rgba(0,0,0,.10); }
-  .header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:14px; }
-  .header h1 { margin:0; font-size:20px; }
-  .sub { color:#6b7280; font-size:12px; margin-top:4px; line-height:1.4; }
-  .pill { font-size:12px; background:#eef2ff; color:#3730a3; padding:6px 10px; border-radius:999px; white-space:nowrap; }
-  .grid { display:grid; grid-template-columns: 1.1fr 0.9fr; gap:12px; margin-top:12px; }
-  .col { display:flex; flex-direction:column; gap:12px; }
-  .card { background:#f9fafb; padding:14px; border-radius:10px; border:1px solid #eef2f7; }
-  .label { color:#6b7280; font-size:12px; margin-bottom:6px; }
-  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .kpi { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
-  .big { font-size:36px; font-weight:800; color:#2563eb; line-height:1; }
-  .muted { color:#6b7280; font-size:12px; }
-  .good { color:#059669; font-weight:700; }
-  .warn { color:#b45309; font-weight:700; }
-  .bad { color:#dc2626; font-weight:700; }
-  ul { margin:8px 0 0 18px; padding:0; }
-  .btnRow { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-  button { padding:10px 14px; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
-  .primary { background:#2563eb; color:white; }
-  .secondary { background:#111827; color:white; }
-  .ghost { background:#e5e7eb; color:#111827; }
-  .toast { margin-top:12px; padding:10px 12px; background:#ecfeff; border:1px solid #a5f3fc; border-radius:10px; color:#155e75; display:none; }
-  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-  .divider { height:1px; background:#eef2f7; margin:12px 0; }
-  .tag { font-size:12px; padding:4px 8px; border-radius:999px; background:#e5e7eb; color:#111827; }
-  .tagBlue { background:#dbeafe; color:#1e40af; }
-  .tagGreen { background:#dcfce7; color:#166534; }
-  .tagAmber { background:#ffedd5; color:#9a3412; }
-  .tagRed { background:#fee2e2; color:#991b1b; }
-  .map { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-  .step { display:flex; justify-content:space-between; gap:10px; padding:10px; border-radius:10px; background:#fff; border:1px solid #eef2f7; }
-  .step strong { font-size:13px; }
-  .step .meta { font-size:12px; color:#6b7280; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Account Intelligence Panel</title>
+  <style>
+    :root{
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --text: #101828;
+      --muted: #667085;
+      --border: #e4e7ec;
+      --border2:#eaecf0;
+      --shadow: 0 1px 2px rgba(16,24,40,.06), 0 2px 6px rgba(16,24,40,.08);
+
+      --blue: #2563eb;
+      --blue2:#e8efff;
+      --green:#027a48;
+      --green2:#ecfdf3;
+      --amber:#b54708;
+      --amber2:#fffaeb;
+      --red:#b42318;
+      --red2:#fef3f2;
+
+      --pill:#f2f4f7;
+      --pillText:#344054;
+
+      --radius: 10px;
+      --radiusSm: 8px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    * { box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app{
+      max-width: 1120px;
+      margin: 18px auto;
+      padding: 0 14px 18px;
+    }
+
+    /* Top bar */
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .titleWrap{
+      min-width: 0;
+    }
+
+    .kicker{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .h1{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
+      margin:0;
+      font-size: 18px;
+      font-weight: 650;
+      letter-spacing: -.01em;
+    }
+
+    .metaRow{
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .metaRow strong{ color: var(--text); font-weight: 600; }
+    .metaInline{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 6px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--pill);
+      color: var(--pillText);
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border2);
+      white-space: nowrap;
+    }
+
+    .pillBlue{ background: var(--blue2); color: #1d4ed8; border-color:#d7e3ff; }
+    .pillGreen{ background: var(--green2); color: var(--green); border-color:#c7f0d7; }
+    .pillAmber{ background: var(--amber2); color: var(--amber); border-color:#fce7b0; }
+    .pillRed{ background: var(--red2); color: var(--red); border-color:#fecaca; }
+
+    .rightBadges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      align-items:flex-start;
+    }
+
+    /* Grid */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.25fr .9fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    /* Panels */
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .panelHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+
+    .panelTitle{
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin:0;
+    }
+
+    .divider{
+      height:1px;
+      background: var(--border2);
+      margin: 10px 0;
+    }
+
+    /* Summary (Deal Health) */
+    .healthRow{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 520px){
+      .healthRow{ grid-template-columns: 1fr; }
+    }
+
+    .score{
+      display:flex;
+      align-items:flex-end;
+      gap:10px;
+    }
+
+    .scoreBig{
+      font-size: 34px;
+      font-weight: 800;
+      color: var(--blue);
+      line-height: 1;
+    }
+
+    .scoreMeta{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.3;
+      padding-bottom: 2px;
+    }
+
+    .kv{
+      display:grid;
+      gap: 8px;
+    }
+
+    .kvItem{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radiusSm);
+      background: #fbfcfe;
+    }
+
+    .kvItem span{ color: var(--muted); font-weight: 600; }
+    .kvItem strong{ font-weight: 700; color: var(--text); }
+
+    /* Lists */
+    ul{
+      margin: 8px 0 0 18px;
+      padding:0;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    li{ margin: 6px 0; }
+
+    .muted{
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    /* MAP */
+    .map{
+      display:grid;
+      gap: 8px;
+    }
+
+    .mapStep{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 10px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radiusSm);
+      background: #fbfcfe;
+    }
+
+    .mapLeft{
+      min-width:0;
+    }
+
+    .mapName{
+      font-weight: 750;
+      font-size: 13px;
+      margin:0;
+    }
+
+    .mapMeta{
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* Right column widgets */
+    .contextGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .contextRow{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radiusSm);
+      background:#fbfcfe;
+      font-size: 13px;
+    }
+    .contextRow span{ color: var(--muted); font-weight: 600; }
+    .contextRow strong{ font-weight: 700; }
+
+    /* Buttons */
+    .btnRow{
+      display:flex;
+      gap: 8px;
+      flex-wrap:wrap;
+      margin-top: 10px;
+    }
+
+    button{
+      border-radius: 8px;
+      padding: 9px 12px;
+      border: 1px solid transparent;
+      cursor:pointer;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      transition: transform .02s ease, opacity .15s ease, background .15s ease, border .15s ease;
+    }
+    button:active{ transform: translateY(1px); }
+
+    .btnPrimary{
+      background: var(--blue);
+      color:#fff;
+      border-color: #1d4ed8;
+    }
+    .btnPrimary:hover{ opacity: .95; }
+
+    .btnGhost{
+      background:#fff;
+      border-color: #d0d5dd;
+      color: #344054;
+    }
+    .btnGhost:hover{ background:#f9fafb; }
+
+    .btnMuted{
+      background:#f2f4f7;
+      border-color:#e4e7ec;
+      color:#667085;
+      cursor: not-allowed;
+    }
+
+    /* Toast */
+    .toast{
+      display:none;
+      margin-top: 10px;
+      padding: 10px 10px;
+      border-radius: 10px;
+      border: 1px solid #c7d2fe;
+      background:#eef2ff;
+      color:#1e3a8a;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    /* Small helper */
+    .mono { font-family: var(--mono); font-size: 12px; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <div>
-        <h1>Account Intelligence Panel</h1>
-        <div class="sub">
-          <strong id="companyName">Prospective Account</strong> · <span id="industry">—</span> · <span id="size">—</span><br/>
-          Primary Contact: <span id="contactName">—</span> · <span id="contactEmail">—</span><br/>
-          HubSpot Contact ID: <span class="mono" id="contactId">—</span> · Owner: <span class="mono" id="ownerId">—</span>
+  <div class="app">
+    <div class="topbar">
+      <div class="titleWrap">
+        <div class="kicker">Prospect Intelligence</div>
+        <h1 class="h1">
+          <span id="panelTitle">Account Intelligence Panel</span>
+          <span class="pill pillBlue" id="signalPill">Signals + Next Best Action</span>
+        </h1>
+
+        <div class="metaRow">
+          <strong>Prospective Account:</strong> <span id="accountName">Cupcake Labs</span><br/>
+          <strong>Primary Contact:</strong> <span id="contactName">Brian Halligan</span> · <span id="contactEmail">bh@cupcakelabs.com</span><br/>
+          <strong>HubSpot Contact ID:</strong> <span class="mono" id="contactId">—</span> ·
+          <strong>Owner:</strong> <span id="ownerName">Isaac Herrera</span>
+        </div>
+
+        <div class="metaInline">
+          <span class="pill" id="segmentPill">Segment: —</span>
+          <span class="pill" id="lifecyclePill">Lifecycle: —</span>
+          <span class="pill" id="leadStatusPill">Lead Status: —</span>
         </div>
       </div>
-      <div class="pill">Signals + Next Best Action</div>
+
+      <div class="rightBadges">
+        <span class="pill pillGreen" id="trendPill">Engagement: Trending Up</span>
+        <span class="pill" id="lastTouchPill">Last touch: —</span>
+        <span class="pill" id="meetingsPill">Meetings (30d): —</span>
+      </div>
     </div>
 
     <div class="grid">
       <!-- LEFT COLUMN -->
       <div class="col">
-        <div class="card">
-          <div class="label">Snapshot</div>
-          <div class="row">
-            <span class="tag tagBlue" id="segmentTag">Segment: —</span>
-            <span class="tag" id="lifecycleTag">Lifecycle: —</span>
-            <span class="tag" id="leadStatusTag">Lead Status: —</span>
+        <div class="panel">
+          <div class="panelHeader">
+            <p class="panelTitle">Snapshot</p>
+            <span class="pill pillBlue" id="recommendationPill">Recommendation: Proceed</span>
           </div>
 
-          <div class="divider"></div>
+          <div class="healthRow">
+            <div>
+              <div class="score">
+                <div class="scoreBig"><span id="healthScore">65</span>%</div>
+                <div class="scoreMeta">
+                  Deal Health Score<br/>
+                  <span class="muted">Calculated from CRM completeness + engagement</span>
+                </div>
+              </div>
 
-          <div class="kpi">
-            <div>
-              <div class="label">Deal Health Score</div>
-              <div class="big"><span id="healthScore">—</span>%</div>
-              <div class="muted">Calculated from CRM completeness + engagement</div>
+              <div class="divider"></div>
+
+              <div class="kv">
+                <div class="kvItem">
+                  <span>Why now</span>
+                  <strong id="whyNow">Engagement trending up</strong>
+                </div>
+                <div class="kvItem">
+                  <span>Primary motion</span>
+                  <strong id="motion">CRM consolidation</strong>
+                </div>
+                <div class="kvItem">
+                  <span>Confidence</span>
+                  <strong id="confidence">High (simulated)</strong>
+                </div>
+              </div>
             </div>
+
             <div>
-              <div class="label">Recommendation</div>
-              <div id="recommendation" class="good">—</div>
-              <div class="muted">Next step suggested from signals</div>
-            </div>
-            <div>
-              <div class="label">Why Now</div>
-              <div id="whyNow" style="font-weight:700;">—</div>
-              <div class="muted">Top buying signal</div>
+              <div class="kv">
+                <div class="kvItem">
+                  <span>Stage</span>
+                  <strong id="stage">Discovery</strong>
+                </div>
+                <div class="kvItem">
+                  <span>ICP Fit</span>
+                  <strong id="icpFit">Strong</strong>
+                </div>
+                <div class="kvItem">
+                  <span>Next best action</span>
+                  <strong id="nba">Align stakeholders + schedule revops deep dive</strong>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="muted" id="snapshotNote">
+                This panel consolidates third-party account intelligence and converts it into guided next steps inside HubSpot—reducing context switching and improving speed-to-action.
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="label">Intent & Buying Signals</div>
-          <ul id="signals">
-            <li>Website activity spike last 7 days</li>
+        <div class="panel" style="margin-top:12px;">
+          <div class="panelHeader">
+            <p class="panelTitle">Intent + Buying Signals</p>
+            <span class="pill pillGreen" id="signalsPill">Signal Strength: Medium</span>
+          </div>
+          <ul id="signalsList">
+            <li>Website activity spike in last 7 days</li>
             <li>Hiring for RevOps / Sales Ops roles</li>
             <li>Tech stack suggests CRM consolidation opportunity</li>
           </ul>
+
           <div class="divider"></div>
-          <div class="label">Risks</div>
-          <ul id="risks">
-            <li><span class="warn">Missing economic buyer</span></li>
-            <li>No meeting scheduled in next 7 days</li>
+
+          <div class="panelHeader" style="margin-bottom:0;">
+            <p class="panelTitle">Risks</p>
+            <span class="pill pillAmber" id="riskPill">Risk Level: Moderate</span>
+          </div>
+          <ul id="risksList">
+            <li><strong style="color:var(--red);">Competing offer from another vendor</strong></li>
+            <li>Cost expectations slightly below range</li>
           </ul>
         </div>
 
-        <div class="card">
-          <div class="label">Mutual Action Plan (MAP)</div>
-          <div class="muted">A clean path from discovery → close, tied to this account.</div>
+        <div class="panel" style="margin-top:12px;">
+          <div class="panelHeader">
+            <p class="panelTitle">Mutual Action Plan (MAP)</p>
+            <span class="pill" id="mapPill">Path to close → tied to this account</span>
+          </div>
 
-          <div class="map" id="map">
-            <div class="step">
-              <div>
-                <strong>Discovery + Success Criteria</strong>
-                <div class="meta">Owner: AE · Due: 3 business days</div>
+          <div class="map" id="mapSteps">
+            <div class="mapStep">
+              <div class="mapLeft">
+                <p class="mapName">Discovery → Success Criteria</p>
+                <div class="mapMeta">Owner: AE · Due: 3 business days</div>
               </div>
-              <div class="tag tagAmber">In Progress</div>
+              <span class="pill pillAmber">In Progress</span>
             </div>
-            <div class="step">
-              <div>
-                <strong>Solution Review</strong>
-                <div class="meta">Owner: SE · Due: 7 business days</div>
+
+            <div class="mapStep">
+              <div class="mapLeft">
+                <p class="mapName">Solution Review</p>
+                <div class="mapMeta">Owner: SE · Due: 7 business days</div>
               </div>
-              <div class="tag">Not Started</div>
+              <span class="pill">Not Started</span>
             </div>
-            <div class="step">
-              <div>
-                <strong>Security / IT Review</strong>
-                <div class="meta">Owner: Buyer IT · Due: 10 business days</div>
+
+            <div class="mapStep">
+              <div class="mapLeft">
+                <p class="mapName">Security / IT Review</p>
+                <div class="mapMeta">Owner: Buyer IT · Due: 10 business days</div>
               </div>
-              <div class="tag">Not Started</div>
+              <span class="pill">Not Started</span>
             </div>
-            <div class="step">
-              <div>
-                <strong>Commercials + Procurement</strong>
-                <div class="meta">Owner: AE · Due: 14 business days</div>
+
+            <div class="mapStep">
+              <div class="mapLeft">
+                <p class="mapName">Commercials + Exec Alignment</p>
+                <div class="mapMeta">Owner: AE + Finance · Due: 12 business days</div>
               </div>
-              <div class="tag">Not Started</div>
+              <span class="pill">Not Started</span>
             </div>
           </div>
         </div>
@@ -142,36 +506,70 @@
 
       <!-- RIGHT COLUMN -->
       <div class="col">
-        <div class="card">
-          <div class="label">Live CRM Context</div>
-          <div style="font-weight:800; font-size:14px;" id="contactLine">—</div>
-          <div class="muted" id="companyLine">—</div>
+        <div class="panel">
+          <div class="panelHeader">
+            <p class="panelTitle">Live CRM Context</p>
+            <span class="pill pillBlue">From record context</span>
+          </div>
 
-          <div class="divider"></div>
-
-          <div class="label">Engagement</div>
-          <div class="row">
-            <span class="tag" id="lastTouchTag">Last touch: —</span>
-            <span class="tag" id="meetingsTag">Meetings (30d): —</span>
+          <div class="contextGrid">
+            <div class="contextRow">
+              <span>Contact</span>
+              <strong id="contextContact">Brian Halligan</strong>
+            </div>
+            <div class="contextRow">
+              <span>Email</span>
+              <strong id="contextEmail">bh@cupcakelabs.com</strong>
+            </div>
+            <div class="contextRow">
+              <span>Owner</span>
+              <strong id="contextOwner">Isaac Herrera</strong>
+            </div>
+            <div class="contextRow">
+              <span>Lifecycle</span>
+              <strong id="contextLifecycle">Lead</strong>
+            </div>
+            <div class="contextRow">
+              <span>Lead Status</span>
+              <strong id="contextLeadStatus">In progress</strong>
+            </div>
           </div>
 
           <div class="divider"></div>
 
-          <div class="label">Next Best Actions</div>
+          <div class="panelHeader" style="margin-bottom: 6px;">
+            <p class="panelTitle">Next Best Actions</p>
+          </div>
+
           <div class="btnRow">
-            <button class="primary" id="createTaskBtn">Create Follow-up Task</button>
-            <button class="secondary" id="logNoteBtn">Log Note</button>
-            <button class="ghost" id="triggerWorkflowBtn">Trigger Workflow</button>
+            <button class="btnPrimary" id="taskBtn">Create Follow-up Task</button>
+            <button class="btnGhost" id="noteBtn">Log Note</button>
+            <button class="btnMuted" id="wfBtn" title="Demo-only (requires server/API)">Trigger Workflow</button>
           </div>
 
           <div class="toast" id="toast"></div>
         </div>
 
-        <div class="card">
-          <div class="label">Talk Track Summary</div>
-          <div id="talkTrack" style="line-height:1.4;">
-            This panel consolidates third-party account intelligence and converts it into guided next steps inside HubSpot,
-            reducing context switching and improving speed-to-action.
+        <div class="panel" style="margin-top:12px;">
+          <div class="panelHeader">
+            <p class="panelTitle">Talk Track Summary</p>
+            <span class="pill">What to say next</span>
+          </div>
+          <div class="muted" id="talkTrack">
+            The account shows increasing engagement and signals that typically precede a platform consolidation decision.
+            Use this panel to connect the dots for the buyer: surface why-now indicators, confirm stakeholders and timing,
+            and drive the next step (RevOps deep dive) without leaving the CRM.
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:12px;">
+          <div class="panelHeader">
+            <p class="panelTitle">AI Summary (Demo)</p>
+            <span class="pill pillBlue">Simulated</span>
+          </div>
+          <div class="muted" id="aiSummary">
+            Fit is strong based on growth signals and operational complexity. Recommend anchoring the conversation on
+            reporting reliability, lifecycle automation, and speed-to-action. Primary risk is a competing vendor timeline.
           </div>
         </div>
       </div>
@@ -179,113 +577,102 @@
   </div>
 
 <script>
+  // Query param helper
   const qs = new URLSearchParams(window.location.search);
-  const get = (k, fallback="") => qs.get(k) || fallback;
+  const get = (k, fallback="—") => (qs.get(k) || fallback);
 
-  // Core identifiers
-  const contactId = get("contactId", "");
-  const name = get("name", "Primary Contact");
-  const email = get("email", "—");
-  const ownerId = get("ownerId", "—");
+  // Fields you can pass from HubSpot iframe URL
+  const data = {
+    account: get("account", "Cupcake Labs"),
+    name: get("name", "Brian Halligan"),
+    email: get("email", "bh@cupcakelabs.com"),
+    contactId: get("contactId", "—"),
+    owner: get("owner", "Isaac Herrera"),
 
-  // Account context
-  const company = get("company", "Prospective Account");
-  const industry = get("industry", "—");
-  const size = get("size", "—");
-  const segment = get("segment", "—");
+    segment: get("segment", "Mid-Market"),
+    lifecycle: get("lifecycle", "Lead"),
+    leadStatus: get("leadStatus", "In progress"),
 
-  // Sales status fields
-  const lifecycle = get("lifecyclestage", "—");
-  const leadStatus = get("leadStatus", "—");
+    lastTouch: get("lastTouch", "Today"),
+    meetings30: get("meetings30", "1"),
 
-  // Engagement (demo fields you can pass later)
-  const lastTouch = get("lastTouch", "—");
-  const meetings30 = get("meetings30", "—");
+    health: get("health", "65"),
+    recommendation: get("recommendation", "Proceed to Quote"),
+    whyNow: get("whyNow", "Engagement trending up"),
+    stage: get("stage", "Discovery"),
+    icpFit: get("icpFit", "Strong"),
+    nba: get("nba", "Align stakeholders + schedule RevOps deep dive"),
 
-  // Health scoring (passed in or computed)
-  let healthScore = parseInt(get("healthScore", ""), 10);
-  if (Number.isNaN(healthScore)) {
-    // Simple deterministic scoring (demo-real)
-    let score = 55;
-    if (email && email !== "—") score += 10;
-    if (company && company !== "Prospective Account") score += 8;
-    if (lifecycle && lifecycle !== "—") score += 5;
-    if (leadStatus && leadStatus !== "—") score += 5;
-    if (meetings30 && meetings30 !== "—") score += 7;
-    healthScore = Math.max(0, Math.min(100, score));
-  }
+    // Optional list items
+    signal1: get("signal1", "Website activity spike in last 7 days"),
+    signal2: get("signal2", "Hiring for RevOps / Sales Ops roles"),
+    signal3: get("signal3", "Tech stack suggests CRM consolidation opportunity"),
 
-  let rec = get("recommendation", "");
-  if (!rec) {
-    if (healthScore >= 80) rec = "Advance to Solution Review";
-    else if (healthScore >= 65) rec = "Schedule Discovery Follow-up";
-    else rec = "Fill Data Gaps + Re-Engage";
-  }
+    risk1: get("risk1", "Competing offer from another vendor"),
+    risk2: get("risk2", "Cost expectations slightly below range")
+  };
 
-  let whyNow = get("whyNow", "");
-  if (!whyNow) {
-    if (healthScore >= 80) whyNow = "Active engagement + strong fit";
-    else if (healthScore >= 65) whyNow = "Engagement trending up";
-    else whyNow = "Signals present, data incomplete";
-  }
+  // Apply to UI
+  document.getElementById("accountName").textContent = data.account;
+  document.getElementById("contactName").textContent = data.name;
+  document.getElementById("contactEmail").textContent = data.email;
+  document.getElementById("contactId").textContent = data.contactId;
+  document.getElementById("ownerName").textContent = data.owner;
 
-  // Render header
-  document.getElementById("companyName").textContent = company;
-  document.getElementById("industry").textContent = industry;
-  document.getElementById("size").textContent = size;
-  document.getElementById("contactName").textContent = name;
-  document.getElementById("contactEmail").textContent = email;
-  document.getElementById("contactId").textContent = contactId || "—";
-  document.getElementById("ownerId").textContent = ownerId || "—";
+  document.getElementById("segmentPill").textContent = `Segment: ${data.segment}`;
+  document.getElementById("lifecyclePill").textContent = `Lifecycle: ${data.lifecycle}`;
+  document.getElementById("leadStatusPill").textContent = `Lead Status: ${data.leadStatus}`;
 
-  // Tags
-  document.getElementById("segmentTag").textContent = `Segment: ${segment}`;
-  document.getElementById("lifecycleTag").textContent = `Lifecycle: ${lifecycle}`;
-  document.getElementById("leadStatusTag").textContent = `Lead Status: ${leadStatus}`;
+  document.getElementById("lastTouchPill").textContent = `Last touch: ${data.lastTouch}`;
+  document.getElementById("meetingsPill").textContent = `Meetings (30d): ${data.meetings30}`;
 
-  // KPIs
-  document.getElementById("healthScore").textContent = String(healthScore);
-  document.getElementById("recommendation").textContent = rec;
-  document.getElementById("whyNow").textContent = whyNow;
+  document.getElementById("healthScore").textContent = data.health;
+  document.getElementById("whyNow").textContent = data.whyNow;
+  document.getElementById("stage").textContent = data.stage;
+  document.getElementById("icpFit").textContent = data.icpFit;
+  document.getElementById("nba").textContent = data.nba;
 
-  // Context block
-  document.getElementById("contactLine").textContent = `${name} · ${email}`;
-  document.getElementById("companyLine").textContent = `${company} · ${industry} · ${size}`;
-  document.getElementById("lastTouchTag").textContent = `Last touch: ${lastTouch}`;
-  document.getElementById("meetingsTag").textContent = `Meetings (30d): ${meetings30}`;
+  // Recommendation pill coloring
+  const rec = data.recommendation.toLowerCase();
+  const recPill = document.getElementById("recommendationPill");
+  recPill.textContent = `Recommendation: ${data.recommendation}`;
+  recPill.classList.remove("pillGreen","pillAmber","pillRed","pillBlue");
+  if (rec.includes("offer") || rec.includes("proceed") || rec.includes("quote")) recPill.classList.add("pillGreen");
+  else if (rec.includes("hold") || rec.includes("review")) recPill.classList.add("pillAmber");
+  else recPill.classList.add("pillBlue");
 
-  // Signals/Risks (can be passed in later as signal1/signal2/risk1/risk2)
-  const signals = [
-    get("signal1","Website activity spike last 7 days"),
-    get("signal2","Hiring for RevOps / Sales Ops roles"),
-    get("signal3","Tech stack suggests CRM consolidation opportunity")
-  ];
-  document.getElementById("signals").innerHTML = signals.map(s => `<li>${s}</li>`).join("");
+  // Signals/Risks lists
+  document.getElementById("signalsList").innerHTML = `
+    <li>${data.signal1}</li>
+    <li>${data.signal2}</li>
+    <li>${data.signal3}</li>
+  `;
+  document.getElementById("risksList").innerHTML = `
+    <li><strong style="color:var(--red);">${data.risk1}</strong></li>
+    <li>${data.risk2}</li>
+  `;
 
-  const risks = [
-    get("risk1","<span class='warn'>Missing economic buyer</span>"),
-    get("risk2","No meeting scheduled in next 7 days")
-  ];
-  document.getElementById("risks").innerHTML = risks.map(r => `<li>${r}</li>`).join("");
+  // Context box
+  document.getElementById("contextContact").textContent = data.name;
+  document.getElementById("contextEmail").textContent = data.email;
+  document.getElementById("contextOwner").textContent = data.owner;
+  document.getElementById("contextLifecycle").textContent = data.lifecycle;
+  document.getElementById("contextLeadStatus").textContent = data.leadStatus;
 
-  // Buttons (demo behavior). In production these call serverless APIs.
+  // Toast actions (demo)
   const toast = document.getElementById("toast");
   const showToast = (msg) => {
     toast.textContent = msg;
     toast.style.display = "block";
-    setTimeout(() => (toast.style.display = "none"), 2400);
+    clearTimeout(window.__t);
+    window.__t = setTimeout(()=> toast.style.display="none", 2600);
   };
 
-  document.getElementById("createTaskBtn").addEventListener("click", () => {
-    showToast("Follow-up task created (demo). In production: create Task + set due date + assign owner.");
+  document.getElementById("taskBtn").addEventListener("click", ()=>{
+    showToast("Follow-up task created (demo). In production: write task to CRM + assign owner.");
   });
-
-  document.getElementById("logNoteBtn").addEventListener("click", () => {
-    showToast("Note logged (demo). In production: write engagement note to this contact/deal.");
-  });
-
-  document.getElementById("triggerWorkflowBtn").addEventListener("click", () => {
-    showToast("Workflow triggered (demo). In production: update property → workflow enrollment.");
+  document.getElementById("noteBtn").addEventListener("click", ()=>{
+    showToast("Note logged (demo). In production: create engagement note on the record.");
   });
 </script>
 </body>
